@@ -1,239 +1,769 @@
-﻿
 @{
     ViewBag.Title = "Dashboard";
     Layout = "~/Views/Shared/_Layout.cshtml";
+
+    var inProcessApplications = ViewBag.InProcessApplications as IEnumerable<dynamic> ?? new List<dynamic>();
+    var approvedUpcomingApplications = ViewBag.ApprovedUpcomingApplications as IEnumerable<dynamic> ?? new List<dynamic>();
+    var approvedFinishedApplications = ViewBag.ApprovedFinishedApplications as IEnumerable<dynamic> ?? new List<dynamic>();
+    var disapprovedApplications = ViewBag.DisapprovedApplications as IEnumerable<dynamic> ?? new List<dynamic>();
+    var allDashboardApplications = inProcessApplications
+        .Concat(approvedUpcomingApplications)
+        .Concat(approvedFinishedApplications)
+        .Concat(disapprovedApplications)
+        .ToList();
 }
 
+@functions {
+    public string GetStatusBadgeClass(short? status)
+    {
+        switch (status)
+        {
+            case 2:
+                return "badge-info";
+            case 3:
+            case 4:
+                return "badge-warning";
+            case 5:
+                return "badge-success";
+            case 0:
+                return "badge-danger";
+            default:
+                return "badge-secondary";
+        }
+    }
+}
+
+@helper RenderApplicationTable(IEnumerable<dynamic> applications, string emptyText, bool showSchedule)
+{
+    if (!applications.Any())
+    {
+        <div class="text-muted p-3">@emptyText</div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-bordered table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th>Date Applied</th>
+                        <th>Leave Detail</th>
+                        <th>Inclusive Dates</th>
+                        <th class="text-center">Total Days</th>
+                        <th class="text-center">Status</th>
+                    @if (showSchedule)
+                    {
+                        <th class="text-center">Schedule</th>
+                    }
+                    <th class="text-center">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                    @foreach (var application in applications)
+                    {
+                        <tr>
+                            <td>@application.DateApplied</td>
+                            <td>@application.LeaveDetail</td>
+                            <td>
+                                @if (string.IsNullOrWhiteSpace(application.InclusiveDates))
+                                {
+                                    <span class="badge badge-secondary">No dates</span>
+                                }
+                                else
+                                {
+                                    @application.InclusiveDates
+                                }
+                            </td>
+                            <td class="text-center">@application.TotalNumberOfDays</td>
+                            <td class="text-center">
+                                <span class="badge @GetStatusBadgeClass(application.Status)">@application.StatusText</span>
+                            </td>
+                            @if (showSchedule)
+                            {
+                            <td class="text-center">
+                                <span class="badge @application.ScheduleBadgeClass">@application.ScheduleText</span>
+                            </td>
+                        }
+                        <td class="text-center">
+                            <button type="button" class="btn btn-sm btn-primary dashboard-view-application" title="View Application" data-toggle="modal" data-target="#modal-dashboard-application" data-application-id="@application.LeaveApplicationID" onclick="window.openDashboardApplication(@application.LeaveApplicationID)">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+            </table>
+        </div>
+    }
+}
+
+<style>
+    .tracking-modal .modal-dialog {
+        max-width: 1000px;
+    }
+
+    .tracking-modal .modal-content {
+        background: #faf8ff;
+        border: 1px solid #c5c5d3;
+        border-radius: 8px;
+        box-shadow: 0 12px 36px rgba(30, 41, 59, 0.18);
+        overflow: hidden;
+    }
+
+    .tracking-modal-header {
+        align-items: center;
+        border-bottom: 1px solid #c5c5d3;
+        display: flex;
+        justify-content: space-between;
+        padding: 24px 30px;
+    }
+
+    .tracking-modal-title-wrap {
+        align-items: center;
+        display: flex;
+        min-width: 0;
+    }
+
+    .tracking-modal-icon {
+        align-items: center;
+        background: #dce1ff;
+        border-radius: 8px;
+        color: #00236f;
+        display: flex;
+        flex: 0 0 52px;
+        font-size: 26px;
+        height: 52px;
+        justify-content: center;
+        margin-right: 18px;
+        width: 52px;
+    }
+
+    .tracking-modal-title {
+        color: #00236f;
+        font-size: 28px;
+        font-weight: 700;
+        line-height: 1.15;
+        margin: 0;
+    }
+
+    .tracking-modal-subtitle {
+        color: #444651;
+        font-size: 14px;
+        margin: 4px 0 0;
+    }
+
+    .tracking-modal-close {
+        background: transparent;
+        border: 0;
+        color: #444651;
+        font-size: 22px;
+        line-height: 1;
+        padding: 8px;
+    }
+
+    .tracking-modal-close:hover {
+        color: #ba1a1a;
+    }
+
+    .tracking-modal-body {
+        display: grid;
+        grid-template-columns: minmax(280px, 2fr) minmax(0, 3fr);
+    }
+
+    .tracking-lifecycle {
+        background: rgba(244, 243, 250, 0.7);
+        border-right: 1px solid #c5c5d3;
+        padding: 28px 30px;
+    }
+
+    .tracking-details {
+        background: #faf8ff;
+        padding: 28px 30px;
+    }
+
+    .tracking-section-label {
+        color: #444651;
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        margin: 0 0 24px;
+        text-transform: uppercase;
+    }
+
+    .tracking-timeline {
+        position: relative;
+    }
+
+    .tracking-timeline:before {
+        background: #d9dce8;
+        bottom: 14px;
+        content: "";
+        left: 13px;
+        position: absolute;
+        top: 14px;
+        width: 2px;
+    }
+
+    .tracking-timeline-empty {
+        color: #6c757d;
+        font-size: 14px;
+        margin: 0;
+    }
+
+    .tracking-step {
+        display: flex;
+        margin-bottom: 28px;
+        position: relative;
+        z-index: 1;
+    }
+
+    .tracking-step:last-child {
+        margin-bottom: 0;
+    }
+
+    .tracking-step-dot {
+        align-items: center;
+        background: #00236f;
+        border-radius: 50%;
+        color: #fff;
+        display: flex;
+        flex: 0 0 28px;
+        font-size: 12px;
+        height: 28px;
+        justify-content: center;
+        margin-right: 16px;
+        width: 28px;
+    }
+
+    .tracking-step-dot.active {
+        background: #faf8ff;
+        border: 3px solid #00236f;
+        color: #00236f;
+    }
+
+    .tracking-step-dot.active span {
+        background: #00236f;
+        border-radius: 50%;
+        display: block;
+        height: 8px;
+        width: 8px;
+    }
+
+    .tracking-step-dot.muted {
+        background: #f4f3fa;
+        border: 1px solid #c5c5d3;
+        color: #757682;
+    }
+
+    .tracking-step-dot.final-approved {
+        background: #28a745;
+        border: 1px solid #28a745;
+        color: #fff;
+    }
+
+    .tracking-step-dot.final-disapproved {
+        background: #dc3545;
+        border: 1px solid #dc3545;
+        color: #fff;
+    }
+
+    .tracking-step-title {
+        color: #1a1b21;
+        font-size: 16px;
+        font-weight: 700;
+        margin: 0;
+    }
+
+    .tracking-step-title.active {
+        color: #00236f;
+    }
+
+    .tracking-step.future {
+        opacity: 0.58;
+    }
+
+    .tracking-step.future .tracking-step-title,
+    .tracking-step.future .tracking-step-meta {
+        color: #757682;
+    }
+
+    .tracking-step.future .tracking-step-dot {
+        background: #f4f3fa;
+        border: 1px solid #c5c5d3;
+        color: #757682;
+    }
+
+    .tracking-step-meta,
+    .tracking-step-remarks {
+        color: #444651;
+        font-size: 13px;
+        margin: 2px 0 0;
+    }
+
+    .tracking-detail-grid {
+        display: grid;
+        gap: 22px 28px;
+        grid-template-columns: 1fr 1fr;
+        margin-bottom: 24px;
+    }
+
+    .tracking-detail-label {
+        color: #444651;
+        display: block;
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        margin-bottom: 6px;
+        text-transform: uppercase;
+    }
+
+    .tracking-detail-value {
+        color: #1a1b21;
+        font-size: 15px;
+        margin: 0;
+    }
+
+    .tracking-detail-wide {
+        grid-column: 1 / -1;
+    }
+
+    .tracking-status-chip {
+        border-radius: 999px;
+        display: inline-flex;
+        font-size: 12px;
+        font-weight: 700;
+        padding: 5px 10px;
+    }
+
+    .tracking-status-info {
+        background: #d0e1fb;
+        color: #00236f;
+    }
+
+    .tracking-status-warning {
+        background: #fff3cd;
+        color: #856404;
+    }
+
+    .tracking-status-success {
+        background: #d4edda;
+        color: #155724;
+    }
+
+    .tracking-status-danger {
+        background: #f8d7da;
+        color: #721c24;
+    }
+
+    .tracking-status-secondary {
+        background: #e9ecef;
+        color: #343a40;
+    }
+
+    .tracking-note {
+        background: #f4f3fa;
+        border-left: 4px solid #00236f;
+        border-radius: 6px;
+        color: #1a1b21;
+        font-style: italic;
+        margin-top: 8px;
+        padding: 16px 18px;
+    }
+
+    .tracking-note-text {
+        margin: 0;
+    }
+
+    .tracking-note-writer {
+        color: #444651;
+        display: block;
+        font-size: 12px;
+        font-style: normal;
+        font-weight: 700;
+        margin-top: 10px;
+    }
+
+    .tracking-modal-footer {
+        background: #faf8ff;
+        border-top: 1px solid #c5c5d3;
+        display: flex;
+        justify-content: flex-end;
+        padding: 20px 30px;
+    }
+
+    .tracking-print-btn {
+        align-items: center;
+        background: #00236f;
+        border: 1px solid #00236f;
+        border-radius: 4px;
+        color: #fff;
+        display: inline-flex;
+        font-weight: 600;
+        height: 40px;
+        padding: 0 18px;
+    }
+
+    .tracking-print-btn:hover {
+        background: #1e3a8a;
+        color: #fff;
+    }
+
+    .tracking-print-btn i {
+        margin-right: 8px;
+    }
+
+    @@media (max-width: 767.98px) {
+        .tracking-modal .modal-dialog {
+            margin: 0.75rem;
+        }
+
+        .tracking-modal-body,
+        .tracking-detail-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .tracking-lifecycle {
+            border-right: 0;
+            border-bottom: 1px solid #c5c5d3;
+        }
+    }
+</style>
+
 <h2>Dashboard</h2>
-<!-- Info boxes -->
+
 <div class="row">
     <div class="col-12 col-sm-6 col-md-3">
         <div class="info-box">
             <span class="info-box-icon bg-info elevation-1"><i class="fas fa-stamp"></i></span>
-
             <div class="info-box-content">
                 <span class="info-box-text">For Certification</span>
-                <span class="info-box-number">
-                    @ViewBag.ForCertification
-                </span>
+                <span class="info-box-number">@ViewBag.ForCertification</span>
             </div>
-            <!-- /.info-box-content -->
         </div>
-        <!-- /.info-box -->
     </div>
-    <!-- /.col -->
-    <!-- fix for small devices only -->
-    <div class="clearfix hidden-md-up"></div>
     <div class="col-12 col-sm-6 col-md-3">
         <div class="info-box mb-3">
             <span class="info-box-icon bg-warning elevation-1"><i class="fas fa-file-signature"></i></span>
-
             <div class="info-box-content">
                 <span class="info-box-text">For Review</span>
                 <span class="info-box-number">@ViewBag.ForReview</span>
             </div>
-            <!-- /.info-box-content -->
         </div>
-        <!-- /.info-box -->
     </div>
-    <!-- /.col -->
     <div class="col-12 col-sm-6 col-md-3">
         <div class="info-box mb-3">
             <span class="info-box-icon bg-success elevation-1"><i class="fas fa-thumbs-up"></i></span>
-
             <div class="info-box-content">
                 <span class="info-box-text">Approved</span>
                 <span class="info-box-number">@ViewBag.Approved</span>
             </div>
-            <!-- /.info-box-content -->
         </div>
-        <!-- /.info-box -->
     </div>
-    <!-- /.col -->
     <div class="col-12 col-sm-6 col-md-3">
         <div class="info-box mb-3">
             <span class="info-box-icon bg-danger elevation-1"><i class="fas fa-thumbs-down"></i></span>
-
             <div class="info-box-content">
                 <span class="info-box-text">Disapproved</span>
                 <span class="info-box-number">@ViewBag.Disapproved</span>
             </div>
-            <!-- /.info-box-content -->
         </div>
-        <!-- /.info-box -->
     </div>
-    <!-- /.col -->
 </div>
-<!-- /.row -->
 
+<div class="modal fade tracking-modal" id="modal-dashboard-application" tabindex="-1" role="dialog" aria-labelledby="modal-dashboard-application-title" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="tracking-modal-header">
+                <div class="tracking-modal-title-wrap">
+                    <div class="tracking-modal-icon">
+                        <i class="fas fa-umbrella-beach"></i>
+                    </div>
+                    <div>
+                        <h4 class="tracking-modal-title" id="modal-dashboard-application-title">Leave Application</h4>
+                        <p class="tracking-modal-subtitle" id="tracking-request-code">REQ-</p>
+                    </div>
+                </div>
+                <button type="button" class="tracking-modal-close" data-dismiss="modal" aria-label="Close">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="tracking-modal-body">
+                <div class="tracking-lifecycle">
+                    <h5 class="tracking-section-label">Application Lifecycle</h5>
+                    <div class="tracking-timeline" id="tracking-timeline"></div>
+                    <p class="tracking-timeline-empty d-none" id="tracking-empty">No tracking history available.</p>
+                </div>
+                <div class="tracking-details">
+                    <div class="tracking-detail-grid">
+                        <div>
+                            <span class="tracking-detail-label">Leave Type</span>
+                            <p class="tracking-detail-value" id="tracking-leave-detail"></p>
+                        </div>
+                        <div>
+                            <span class="tracking-detail-label">Duration</span>
+                            <p class="tracking-detail-value" id="tracking-total-days"></p>
+                        </div>
+                        <div>
+                            <span class="tracking-detail-label">Date Applied</span>
+                            <p class="tracking-detail-value" id="tracking-date-applied"></p>
+                        </div>
+                        <div>
+                            <span class="tracking-detail-label">Current Status</span>
+                            <p class="tracking-detail-value" id="tracking-current-status"></p>
+                        </div>
+                        <div class="tracking-detail-wide">
+                            <span class="tracking-detail-label">Inclusive Dates</span>
+                            <p class="tracking-detail-value" id="tracking-inclusive-dates"></p>
+                        </div>
+                        <div class="tracking-detail-wide">
+                            <span class="tracking-detail-label">Remarks</span>
+                            <div class="tracking-note" id="tracking-latest-remarks"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="tracking-modal-footer">
+                <button type="button" class="tracking-print-btn" id="tracking-print-summary">
+                    <i class="fas fa-print"></i>
+                    Print Summary
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
 
-<div id="calendar"></div>
-
-<!-- Page specific script -->
 <script>
-    $(function () {
+    window.dashboardApplications = @Html.Raw(Json.Encode(allDashboardApplications));
 
-        /* initialize the external events
-         -----------------------------------------------------------------*/
-        function ini_events(ele) {
-            ele.each(function () {
+    window.getDashboardStatusBadgeClass = function (status) {
+        switch (status) {
+            case 2:
+                return 'tracking-status-info';
+            case 3:
+            case 4:
+                return 'tracking-status-warning';
+            case 5:
+                return 'tracking-status-success';
+            case 0:
+                return 'tracking-status-danger';
+            default:
+                return 'tracking-status-secondary';
+        }
+    };
 
-                // create an Event Object (http://arshaw.com/fullcalendar/docs/event_data/Event_Object/)
-                // it doesn't need to have a start or end
-                var eventObject = {
-                    title: $.trim($(this).text()) // use the element's text as the event title
-                }
+    window.setDashboardTrackingText = function (selector, value) {
+        $(selector).text(value || '');
+    };
 
-                // store the Event Object in the DOM element so we can get to it later
-                $(this).data('eventObject', eventObject)
+    window.setDashboardRemarks = function (application) {
+        var remarks = $('#tracking-latest-remarks');
+        remarks.empty();
 
-                // make the event draggable using jQuery UI
-                $(this).draggable({
-                    zIndex: 1070,
-                    revert: true, // will cause the event to go back to its
-                    revertDuration: 0  //  original position after the drag
-                })
-
-            })
+        if (!application.LatestRemarks) {
+            $('<p>')
+                .addClass('tracking-note-text')
+                .text('No remarks available.')
+                .appendTo(remarks);
+            return;
         }
 
-        ini_events($('#external-events div.external-event'))
+        $('<p>')
+            .addClass('tracking-note-text')
+            .text(application.LatestRemarks)
+            .appendTo(remarks);
 
-        /* initialize the calendar
-         -----------------------------------------------------------------*/
-        //Date for the calendar events (dummy data)
-        var date = new Date()
-        var d = date.getDate(),
-            m = date.getMonth(),
-            y = date.getFullYear()
+        if (application.LatestRemarksBy) {
+            $('<span>')
+                .addClass('tracking-note-writer')
+                .text('Written by ' + application.LatestRemarksBy)
+                .appendTo(remarks);
+        }
+    };
 
-        var Calendar = FullCalendar.Calendar;
-        var Draggable = FullCalendarInteraction.Draggable;
+    window.buildTrackingMeta = function (trackingItem) {
+        var parts = [];
 
-        var containerEl = document.getElementById('external-events');
-        var checkbox = document.getElementById('drop-remove');
-        var calendarEl = document.getElementById('calendar');
+        if (trackingItem.DateSubmitted) {
+            parts.push(trackingItem.DateSubmitted);
+        }
 
-        // initialize the external events
-        // -----------------------------------------------------------------
+        if (trackingItem.SubmittedBy) {
+            parts.push('Submitted by ' + trackingItem.SubmittedBy);
+        }
 
-        new Draggable(containerEl, {
-            itemSelector: '.external-event',
-            eventData: function (eventEl) {
-                console.log(eventEl);
-                return {
-                    title: eventEl.innerText,
-                    backgroundColor: window.getComputedStyle(eventEl, null).getPropertyValue('background-color'),
-                    borderColor: window.getComputedStyle(eventEl, null).getPropertyValue('background-color'),
-                    textColor: window.getComputedStyle(eventEl, null).getPropertyValue('color'),
-                };
-            }
+        if (trackingItem.ReceivedBy) {
+            parts.push('Received by ' + trackingItem.ReceivedBy);
+        }
+
+        return parts.join(' - ');
+    };
+
+    window.appendFutureLifecycleStep = function (timeline, nextStep) {
+        var expectedText = nextStep.ExpectedDate ? 'Expected by ' + nextStep.ExpectedDate : 'Expected date unavailable';
+        var step = $('<div>').addClass('tracking-step future');
+        var dot = $('<div>')
+            .addClass('tracking-step-dot')
+            .append($('<i>').addClass('fas fa-hourglass-half'));
+        var content = $('<div>');
+
+        $('<p>')
+            .addClass('tracking-step-title')
+            .text(nextStep.Title || 'Next Step')
+            .appendTo(content);
+        $('<p>')
+            .addClass('tracking-step-meta')
+            .text(expectedText)
+            .appendTo(content);
+
+        step.append(dot).append(content).appendTo(timeline);
+    };
+
+    window.renderTrackingTimeline = function (trackingItems, nextSteps) {
+        var timeline = $('#tracking-timeline');
+        var pendingNextSteps = (nextSteps || []).filter(function (nextStep) {
+            return nextStep.IsPending;
         });
 
-        var calendar = new Calendar(calendarEl, {
-            plugins: ['bootstrap', 'interaction', 'dayGrid', 'timeGrid'],
-            header: {
-                left: 'prev,next today',
-                center: 'title',
-                right: 'dayGridMonth,timeGridWeek,timeGridDay'
-            },
-            //Random default events
-            events: [
-                {
-                    title: 'All Day Event',
-                    start: new Date(y, m, 1),
-                    backgroundColor: '#f56954', //red
-                    borderColor: '#f56954' //red
-                },
-                {
-                    title: 'Long Event',
-                    start: new Date(y, m, d - 5),
-                    end: new Date(y, m, d - 2),
-                    backgroundColor: '#f39c12', //yellow
-                    borderColor: '#f39c12' //yellow
-                },
-                {
-                    title: 'Meeting',
-                    start: new Date(y, m, d, 10, 30),
-                    allDay: false,
-                    backgroundColor: '#0073b7', //Blue
-                    borderColor: '#0073b7' //Blue
-                },
-                {
-                    title: 'Lunch',
-                    start: new Date(y, m, d, 12, 0),
-                    end: new Date(y, m, d, 14, 0),
-                    allDay: false,
-                    backgroundColor: '#00c0ef', //Info (aqua)
-                    borderColor: '#00c0ef' //Info (aqua)
-                },
-                {
-                    title: 'Birthday Party',
-                    start: new Date(y, m, d + 1, 19, 0),
-                    end: new Date(y, m, d + 1, 22, 30),
-                    allDay: false,
-                    backgroundColor: '#00a65a', //Success (green)
-                    borderColor: '#00a65a' //Success (green)
-                },
-                {
-                    title: 'Click for Google',
-                    start: new Date(y, m, 28),
-                    end: new Date(y, m, 29),
-                    url: 'http://google.com/',
-                    backgroundColor: '#3c8dbc', //Primary (light-blue)
-                    borderColor: '#3c8dbc' //Primary (light-blue)
-                }
-            ],
-            editable: true,
-            droppable: true, // this allows things to be dropped onto the calendar !!!
-            drop: function (info) {
-                // is the "remove after drop" checkbox checked?
-                if (checkbox.checked) {
-                    // if so, remove the element from the "Draggable Events" list
-                    info.draggedEl.parentNode.removeChild(info.draggedEl);
-                }
+        timeline.empty();
+
+        if ((!trackingItems || trackingItems.length === 0) && pendingNextSteps.length === 0) {
+            timeline.addClass('d-none');
+            $('#tracking-empty').removeClass('d-none');
+            return;
+        }
+
+        timeline.removeClass('d-none');
+        $('#tracking-empty').addClass('d-none');
+
+        (trackingItems || []).forEach(function (trackingItem, index) {
+            var isLatest = index === trackingItems.length - 1;
+            var step = $('<div>').addClass('tracking-step');
+            var dot = $('<div>').addClass('tracking-step-dot');
+
+            if (isLatest && trackingItem.Status === 5) {
+                dot.addClass('final-approved').append($('<i>').addClass('fas fa-check'));
+            } else if (isLatest && trackingItem.Status === 0) {
+                dot.addClass('final-disapproved').append($('<i>').addClass('fas fa-times'));
+            } else if (isLatest) {
+                dot.addClass('active').append($('<span>'));
+            } else {
+                dot.append($('<i>').addClass('fas fa-check'));
             }
+
+            var content = $('<div>');
+            $('<p>')
+                .addClass('tracking-step-title' + (isLatest ? ' active' : ''))
+                .text(trackingItem.StatusText || 'Tracking Update')
+                .appendTo(content);
+            $('<p>')
+                .addClass('tracking-step-meta')
+                .text(window.buildTrackingMeta(trackingItem))
+                .appendTo(content);
+
+            if (trackingItem.Remarks) {
+                $('<p>')
+                    .addClass('tracking-step-remarks')
+                    .text(trackingItem.Remarks)
+                    .appendTo(content);
+            }
+
+            step.append(dot).append(content).appendTo(timeline);
         });
 
-        calendar.render();
-        // $('#calendar').fullCalendar()
+        pendingNextSteps.forEach(function (nextStep) {
+            window.appendFutureLifecycleStep(timeline, nextStep);
+        });
+    };
 
-        /* ADDING EVENTS */
-        var currColor = '#3c8dbc' //Red by default
-        //Color chooser button
-        var colorChooser = $('#color-chooser-btn')
-        $('#color-chooser > li > a').click(function (e) {
-            e.preventDefault()
-            //Save color
-            currColor = $(this).css('color')
-            //Add color effect to button
-            $('#add-new-event').css({
-                'background-color': currColor,
-                'border-color': currColor
-            })
-        })
-        $('#add-new-event').click(function (e) {
-            e.preventDefault()
-            //Get value and make sure it is not null
-            var val = $('#new-event').val()
-            if (val.length == 0) {
-                return
+    window.populateDashboardApplication = function (leaveApplicationID) {
+        var application = window.dashboardApplications.find(function (item) {
+            return item.LeaveApplicationID === Number(leaveApplicationID);
+        });
+
+        if (!application) {
+            return;
+        }
+
+        window.currentDashboardApplicationID = application.LeaveApplicationID;
+        window.setDashboardTrackingText('#modal-dashboard-application-title', application.LeaveDetail || 'Leave Application');
+        window.setDashboardTrackingText('#tracking-request-code', 'REQ-' + application.LeaveApplicationID);
+        window.setDashboardTrackingText('#tracking-date-applied', application.DateApplied);
+        window.setDashboardTrackingText('#tracking-leave-detail', application.LeaveDetail);
+        window.setDashboardTrackingText('#tracking-inclusive-dates', application.InclusiveDates || 'No dates');
+        window.setDashboardTrackingText('#tracking-total-days', application.TotalNumberOfDays + (application.TotalNumberOfDays === 1 ? ' Day' : ' Days'));
+        window.setDashboardRemarks(application);
+        $('#tracking-current-status')
+            .empty()
+            .append($('<span>').addClass('tracking-status-chip ' + window.getDashboardStatusBadgeClass(application.Status)).text(application.StatusText || ''));
+
+        var trackingItems = application.TrackingItems || [];
+        window.renderTrackingTimeline(trackingItems, application.NextSteps || []);
+    };
+
+    window.openDashboardApplication = function (leaveApplicationID) {
+        window.populateDashboardApplication(leaveApplicationID);
+        $('#modal-dashboard-application').modal('show');
+    };
+
+    $(function () {
+        $(document).on('click', '.dashboard-view-application', function (event) {
+            event.preventDefault();
+            window.openDashboardApplication($(this).data('application-id'));
+        });
+
+        $('#tracking-print-summary').on('click', function () {
+            if (!window.currentDashboardApplicationID) {
+                return;
             }
 
-            //Create events
-            var event = $('<div />')
-            event.css({
-                'background-color': currColor,
-                'border-color': currColor,
-                'color': '#fff'
-            }).addClass('external-event')
-            event.html(val)
-            $('#external-events').prepend(event)
+            window.open('/Report/GenerateReport?id=' + window.currentDashboardApplicationID + '&reporttype=LeaveApplicationForm', '_blank');
+        });
+    });
+</script>
 
-            //Add draggable funtionality
-            ini_events(event)
+<div class="card card-primary card-outline">
+    <div class="card-header">
+        <h3 class="card-title">In Process</h3>
+        <div class="card-tools">
+            <span class="badge badge-primary">@inProcessApplications.Count()</span>
+        </div>
+    </div>
+    <div class="card-body p-0">
+        @RenderApplicationTable(inProcessApplications, "No in-process applications for this year.", false)
+    </div>
+</div>
 
-            //Remove event from text input
-            $('#new-event').val('')
-        })
-    })</script>
+<div class="card card-info card-outline">
+    <div class="card-header">
+        <h3 class="card-title">Approved - Upcoming</h3>
+        <div class="card-tools">
+            <span class="badge badge-info">@approvedUpcomingApplications.Count()</span>
+        </div>
+    </div>
+    <div class="card-body p-0">
+        @RenderApplicationTable(approvedUpcomingApplications, "No upcoming approved applications for this year.", true)
+    </div>
+</div>
+
+<div class="card card-success card-outline">
+    <div class="card-header">
+        <h3 class="card-title">Approved - Finished</h3>
+        <div class="card-tools">
+            <span class="badge badge-success">@approvedFinishedApplications.Count()</span>
+        </div>
+    </div>
+    <div class="card-body p-0">
+        @RenderApplicationTable(approvedFinishedApplications, "No finished approved applications for this year.", true)
+    </div>
+</div>
+
+<div class="card card-danger card-outline">
+    <div class="card-header">
+        <h3 class="card-title">Disapproved</h3>
+        <div class="card-tools">
+            <span class="badge badge-danger">@disapprovedApplications.Count()</span>
+        </div>
+    </div>
+    <div class="card-body p-0">
+        @RenderApplicationTable(disapprovedApplications, "No disapproved applications for this year.", false)
+    </div>
+</div>

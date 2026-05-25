@@ -1,5 +1,8 @@
 ﻿using CrystalDecisions.CrystalReports.Engine;
 using CrystalDecisions.Shared;
+using System;
+using System.Collections.Generic;
+using System.Drawing;
 using System.IO;
 using System.Net.Mime;
 using System.Web.Mvc;
@@ -12,6 +15,32 @@ namespace OnlineLeaveApplication.Controllers
 {
     public class ReportController : Controller
     {
+        const string SelectedCheckboxMark = "/";
+        static readonly HashSet<string> CheckboxMarkParameterNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        {
+            "pVacationLeaveMark",
+            "pMandatoryForcedLeaveMark",
+            "pSickLeaveMark",
+            "pMaternityLeaveMark",
+            "pPaternityLeaveMark",
+            "pSpecialPrivilegeLeaveMark",
+            "pSoloParentLeaveMark",
+            "pStudyLeaveMark",
+            "pVAWCLeaveMark",
+            "pRehabilitationPrivilegeMark",
+            "pSpecialLeaveBenefitsForWomenMark",
+            "pSpecialEmergencyCalamityLeaveMark",
+            "pAdoptionLeaveMark",
+            "pWithinPhilippinesMark",
+            "pAbroadMark",
+            "pInHospitalMark",
+            "pOutPatientMark",
+            "pCompletionMark",
+            "pBARMark",
+            "pMonetizationMark",
+            "pTerminalMark"
+        };
+
         string ServerName = ConfigurationManager.AppSettings["ServerName"];
         string DatabaseName = ConfigurationManager.AppSettings["DatabaseName"];
         string Username = ConfigurationManager.AppSettings["Username"];
@@ -39,6 +68,7 @@ namespace OnlineLeaveApplication.Controllers
                     rd = GetReport(rd);
                     rd.SetParameterValue("LeaveApplicationID", id);
                     ApplyLeaveDetailParameters(rd, id);
+                    ApplyCheckboxMarkFont(rd);
                     break;
                 default:
                     return new HttpStatusCodeResult(400, "Invalid report type.");
@@ -71,6 +101,9 @@ namespace OnlineLeaveApplication.Controllers
                     .Select(d => d.TypeOfLeave.TypeOfLeave1)
                     .ToList();
 
+                var vacationOrSpecialPrivilegeLeave = details
+                    .Where(d => d.TypeOfLeaveID == 1 || d.TypeOfLeaveID == 6)
+                    .ToList();
                 var sickLeave = details.Where(d => d.TypeOfLeaveID == 3).ToList();
 
                 TrySetLeaveTypeParameter(rd, "pVacationLeaveMark", leaveTypeNames, "Vacation Leave");
@@ -87,23 +120,24 @@ namespace OnlineLeaveApplication.Controllers
                 TrySetLeaveTypeParameter(rd, "pSpecialEmergencyCalamityLeaveMark", leaveTypeNames, "Special Emergency (Calamity) Leave");
                 TrySetLeaveTypeParameter(rd, "pAdoptionLeaveMark", leaveTypeNames, "Adoption Leave");
 
-                TrySetParameter(rd, "pWithinPhilippinesMark", details.Any(d => d.WithinThePhilippines == true) ? "/" : string.Empty);
-                TrySetParameter(rd, "pLocation", details.Select(d => d.WithinThePhilippinesAbroadLocation).FirstOrDefault(v => !string.IsNullOrWhiteSpace(v)) ?? string.Empty);
-                TrySetParameter(rd, "pInHospitalMark", sickLeave.Any(d => d.InHospital == true) ? "/" : string.Empty);
-                TrySetParameter(rd, "pOutPatientMark", sickLeave.Any(d => d.InHospital != true && !string.IsNullOrWhiteSpace(d.InHospitalOutPatientIllness)) ? "/" : string.Empty);
+                TrySetParameter(rd, "pWithinPhilippinesMark", vacationOrSpecialPrivilegeLeave.Any(d => d.WithinThePhilippines == true) ? SelectedCheckboxMark : string.Empty);
+                TrySetParameter(rd, "pAbroadMark", vacationOrSpecialPrivilegeLeave.Any(d => d.WithinThePhilippines != true && !string.IsNullOrWhiteSpace(d.WithinThePhilippinesAbroadLocation)) ? SelectedCheckboxMark : string.Empty);
+                TrySetParameter(rd, "pLocation", vacationOrSpecialPrivilegeLeave.Select(d => d.WithinThePhilippinesAbroadLocation).FirstOrDefault(v => !string.IsNullOrWhiteSpace(v)) ?? string.Empty);
+                TrySetParameter(rd, "pInHospitalMark", sickLeave.Any(d => d.InHospital == true) ? SelectedCheckboxMark : string.Empty);
+                TrySetParameter(rd, "pOutPatientMark", sickLeave.Any(d => d.InHospital != true && !string.IsNullOrWhiteSpace(d.InHospitalOutPatientIllness)) ? SelectedCheckboxMark : string.Empty);
                 TrySetParameter(rd, "pIllness", sickLeave.Select(d => d.InHospitalOutPatientIllness).FirstOrDefault(v => !string.IsNullOrWhiteSpace(v)) ?? string.Empty);
                 TrySetParameter(rd, "pSpecialLeaveBenefits", details.Select(d => d.SpecialLeaveBenefits).FirstOrDefault(v => !string.IsNullOrWhiteSpace(v)) ?? string.Empty);
-                TrySetParameter(rd, "pCompletionMark", details.Any(d => d.CompletionOfMastersDegree == true) ? "/" : string.Empty);
-                TrySetParameter(rd, "pBARMark", details.Any(d => d.BARBoardExaminationReview == true) ? "/" : string.Empty);
-                TrySetParameter(rd, "pMonetizationMark", details.Any(d => d.MonetizationOfLeaveCredits == true) ? "/" : string.Empty);
-                TrySetParameter(rd, "pTerminalMark", details.Any(d => d.TerminalLeave == true) ? "/" : string.Empty);
+                TrySetParameter(rd, "pCompletionMark", details.Any(d => d.CompletionOfMastersDegree == true) ? SelectedCheckboxMark : string.Empty);
+                TrySetParameter(rd, "pBARMark", details.Any(d => d.BARBoardExaminationReview == true) ? SelectedCheckboxMark : string.Empty);
+                TrySetParameter(rd, "pMonetizationMark", details.Any(d => d.MonetizationOfLeaveCredits == true) ? SelectedCheckboxMark : string.Empty);
+                TrySetParameter(rd, "pTerminalMark", details.Any(d => d.TerminalLeave == true) ? SelectedCheckboxMark : string.Empty);
             }
         }
 
         void TrySetLeaveTypeParameter(ReportDocument rd, string parameterName, System.Collections.Generic.List<string> leaveTypeNames, string leaveTypeName)
         {
             var selected = leaveTypeNames.Any(name => name == leaveTypeName);
-            TrySetParameter(rd, parameterName, selected ? "/" : string.Empty);
+            TrySetParameter(rd, parameterName, selected ? SelectedCheckboxMark : string.Empty);
         }
 
         void TrySetParameter(ReportDocument rd, string parameterName, string value)
@@ -116,6 +150,58 @@ namespace OnlineLeaveApplication.Controllers
                     return;
                 }
             }
+        }
+
+        void ApplyCheckboxMarkFont(ReportDocument rd)
+        {
+            foreach (Section section in rd.ReportDefinition.Sections)
+            {
+                foreach (ReportObject reportObject in section.ReportObjects)
+                {
+                    var fieldObject = reportObject as FieldObject;
+                    if (fieldObject != null && (IsCheckboxMarkField(fieldObject) || UsesSymbolFont(fieldObject.Font)))
+                    {
+                        ApplyArialFont(fieldObject, fieldObject.Font);
+                    }
+
+                    var textObject = reportObject as TextObject;
+                    if (textObject != null && UsesSymbolFont(textObject.Font))
+                    {
+                        ApplyArialFont(textObject, textObject.Font);
+                    }
+                }
+            }
+        }
+
+        void ApplyArialFont(FieldObject fieldObject, Font currentFont)
+        {
+            var fontSize = currentFont == null || currentFont.Size <= 0 ? 8F : currentFont.Size;
+            fieldObject.ApplyFont(new Font("Arial", fontSize, FontStyle.Regular));
+        }
+
+        void ApplyArialFont(TextObject textObject, Font currentFont)
+        {
+            var fontSize = currentFont == null || currentFont.Size <= 0 ? 8F : currentFont.Size;
+            textObject.ApplyFont(new Font("Arial", fontSize, FontStyle.Regular));
+        }
+
+        bool IsCheckboxMarkField(FieldObject fieldObject)
+        {
+            var fieldName = fieldObject.DataSource == null ? string.Empty : fieldObject.DataSource.Name;
+            return CheckboxMarkParameterNames.Any(parameterName =>
+                fieldName.IndexOf(parameterName, StringComparison.OrdinalIgnoreCase) >= 0);
+        }
+
+        bool UsesSymbolFont(Font font)
+        {
+            if (font == null || string.IsNullOrWhiteSpace(font.Name))
+            {
+                return false;
+            }
+
+            return font.Name.IndexOf("Wingdings", StringComparison.OrdinalIgnoreCase) >= 0
+                || font.Name.IndexOf("Webdings", StringComparison.OrdinalIgnoreCase) >= 0
+                || font.Name.IndexOf("Symbol", StringComparison.OrdinalIgnoreCase) >= 0;
         }
 
         void EnsureReportDatabaseObjects()

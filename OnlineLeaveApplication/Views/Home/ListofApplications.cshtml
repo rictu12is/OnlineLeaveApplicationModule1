@@ -56,11 +56,19 @@
                 $("#modal_details").modal('hide');
             }, "json");
         });
+
+        $("#btnDisapprove").click(function () {
+            $.post("/LeaveApplication/SubmitLeaveApplication", { leaveApplicationID: $("#LeaveApplicationID").val(), remarks: $('textarea[name="Remarks"]').val(), isReturned: true }, function (response) {
+                table_leave.ajax.reload();
+                $("#modal_details").modal('hide');
+            }, "json");
+        });
     });
 
     function getData(d) {
         var row = d;
         $("#LeaveApplicationID").val(row.LeaveApplicationID);
+        $('textarea[name="Remarks"]').val('');
         var arr = row.Attachments.split(",");
         var attachments = '';
         arr.forEach((d, i) => {
@@ -85,8 +93,10 @@
                 </dl>
               </div>`);
           
-        if (d.Status == 'For Review') {
+        if (d.Status == 'For Certification') {
             $("#btnSubmit").html('Submit for Review'); 
+        } else if (d.Status == 'For Review') {
+            $("#btnSubmit").html('Submit for Approval');
         } else {
             $("#btnSubmit").html('Approve');
         }
@@ -118,7 +128,10 @@
             </div>
             <div class="modal-footer justify-content-between">
                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary" id="btnSubmit">Approve</button>
+                <div>
+                    <button type="button" class="btn btn-danger" id="btnDisapprove">Disapprove</button>
+                    <button type="button" class="btn btn-primary" id="btnSubmit">Approve</button>
+                </div>
             </div>
         </div>
         <!-- /.modal-content -->

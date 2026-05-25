@@ -1,4 +1,13 @@
 ﻿<!DOCTYPE html>
+@{
+    var currentController = (ViewContext.RouteData.Values["controller"] ?? "").ToString();
+    var currentAction = (ViewContext.RouteData.Values["action"] ?? "").ToString();
+    Func<string, string> activeHomeAction = action => currentController == "Home" && currentAction == action ? "active" : "";
+    var leaveApplicationActions = new[] { "Dashboard", "Index", "ListofApplications", "Signatories" };
+    var regionalOrderActions = new[] { "ManageRegionalOrder", "RegionalOrders", "RegionalOrderCalendar", "CTOApplication" };
+    var isLeaveApplicationActive = currentController == "Home" && leaveApplicationActions.Contains(currentAction);
+    var isRegionalOrderActive = currentController == "Home" && regionalOrderActions.Contains(currentAction);
+}
 <!--
 This is a starter template page. Use this page to start your new project from
 scratch. This page gets rid of all links and provides the needed markup only.
@@ -182,10 +191,10 @@ scratch. This page gets rid of all links and provides the needed markup only.
                 <!-- Sidebar user panel (optional) -->
                 <div class="user-panel mt-3 pb-3 mb-3 d-flex">
                     <div class="image">
-                        <img src="~/dist/img/user2-160x160.jpg" class="img-circle elevation-2" alt="User Image">
+                        <img src="~/dist/img/default-150x150.png" class="img-circle elevation-2" alt="User Image">
                     </div>
                     <div class="info">
-                        <a href="#" class="d-block">Alexander Pierce</a>
+                        <a href="#" class="d-block">@(Session["EmployeeName"] ?? "User")</a>
                     </div>
                 </div>
 
@@ -194,8 +203,8 @@ scratch. This page gets rid of all links and provides the needed markup only.
                     <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
                         <!-- Add icons to the links using the .nav-icon class
                         with font-awesome or any other icon font library -->
-                        <li class="nav-item has-treeview menu-open">
-                            <a href="#" class="nav-link active">
+                        <li class="nav-item has-treeview @(isLeaveApplicationActive ? "menu-open" : "")">
+                            <a href="#" class="nav-link @(isLeaveApplicationActive ? "active" : "")">
                                 <i class="nav-icon fas fa-file-signature"></i>
                                 <p>
                                     Leave Application
@@ -204,19 +213,19 @@ scratch. This page gets rid of all links and provides the needed markup only.
                             </a>
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
-                                    <a href="/Home/Dashboard" class="nav-link">
+                                    <a href="/Home/Dashboard" class="nav-link @activeHomeAction("Dashboard")">
                                         <p>Dashboard</p>
                                     </a>
                                 </li>
                                 <li class="nav-item">
-                                    <a href="/Home/Index" class="nav-link">
+                                    <a href="/Home/Index" class="nav-link @activeHomeAction("Index")">
                                         <p>Apply for Leave</p>
                                     </a>
                                 </li>
                                 @{ if (Convert.ToInt32(Session["Status"]) != 0)
                                                 {
                                     <li class="nav-item">
-                                        <a href="/Home/ListofApplications" class="nav-link">
+                                        <a href="/Home/ListofApplications" class="nav-link @activeHomeAction("ListofApplications")">
                                             <p>List of Applications</p>
                                         </a>
                                     </li>
@@ -228,14 +237,14 @@ scratch. This page gets rid of all links and provides the needed markup only.
                                     </a>
                                 </li>
                                 <li class="nav-item">
-                                    <a href="/Home/Signatories" class="nav-link">
+                                    <a href="/Home/Signatories" class="nav-link @activeHomeAction("Signatories")">
                                         <p>Manage Signatories</p>
                                     </a>
                                 </li>
                             </ul>
                         </li>
-                        <li class="nav-item has-treeview">
-                            <a href="#" class="nav-link">
+                        <li class="nav-item has-treeview @(isRegionalOrderActive ? "menu-open" : "")">
+                            <a href="#" class="nav-link @(isRegionalOrderActive ? "active" : "")">
                                 <i class="nav-icon fas fa-file-signature"></i>
                                 <p>
                                     Regional Order
@@ -246,24 +255,24 @@ scratch. This page gets rid of all links and provides the needed markup only.
                                 @{ if (Convert.ToInt32(Session["Status"]) != 0)
                                                 {
                                     <li class="nav-item">
-                                        <a href="~/Home/ManageRegionalOrder" class="nav-link"> 
+                                        <a href="~/Home/ManageRegionalOrder" class="nav-link @activeHomeAction("ManageRegionalOrder")"> 
                                             <p>Manage Regional Orders</p>
                                         </a>
                                     </li>
  }
                                 }
                                 <li class="nav-item">
-                                    <a href="~/Home/RegionalOrders" class="nav-link"> 
+                                    <a href="~/Home/RegionalOrders" class="nav-link @activeHomeAction("RegionalOrders")"> 
                                         <p>My Regional Orders</p>
                                     </a>
                                 </li>
                                 <li class="nav-item">
-                                    <a href="~/Home/RegionalOrderCalendar" class="nav-link">
+                                    <a href="~/Home/RegionalOrderCalendar" class="nav-link @activeHomeAction("RegionalOrderCalendar")">
                                         <p>Regional Order Calendar</p>
                                     </a>
                                 </li>
                                 <li class="nav-item">
-                                    <a href="~/Home/CTOApplication" class="nav-link"> 
+                                    <a href="~/Home/CTOApplication" class="nav-link @activeHomeAction("CTOApplication")"> 
                                         <p>Apply for CTO</p>
                                     </a>
                                 </li>

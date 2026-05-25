@@ -106,6 +106,7 @@
         <tr>
             <th>Date Applied</th>
             <th>Leave Detail</th>
+            <th>Inclusive Dates</th>
             <th>Total Number of Days</th>
             <th>Status</th>
         </tr>
@@ -120,14 +121,95 @@
     function getStatusBadge(status) {
         var badgeClass = {
             'Draft': 'badge-secondary',
+            'For Certification': 'badge-info',
             'For Review': 'badge-primary',
             'Reviewed': 'badge-warning',
             'For Approval': 'badge-warning',
             'Approved': 'badge-success',
-            'Returned': 'badge-danger'
+            'Returned': 'badge-danger',
+            'Disapproved': 'badge-danger'
         }[status] || 'badge-secondary';
 
         return '<span class="badge ' + badgeClass + '">' + status + '</span>';
+    }
+
+    function formatInclusiveDateValue(date) {
+        var monthNames = ['Jan.', 'Feb.', 'Mar.', 'Apr.', 'May.', 'Jun.', 'Jul.', 'Aug.', 'Sep.', 'Oct.', 'Nov.', 'Dec.'];
+
+        return monthNames[date.getMonth()] + ' ' + date.getDate() + ', ' + date.getFullYear();
+    }
+
+    function formatInclusiveDateRange(startDate, endDate) {
+        if (startDate.getTime() === endDate.getTime()) {
+            return formatInclusiveDateValue(startDate);
+        }
+
+        return formatInclusiveDateValue(startDate) + ' - ' + formatInclusiveDateValue(endDate);
+    }
+
+    function formatInclusiveDatesFromLeaveDates(leaveDates) {
+        if (!leaveDates) {
+            return '';
+        }
+
+        var dateGroups = leaveDates
+            .split(/<br\s*\/?>/i)
+            .map(function (leaveDateGroup) {
+                var match = leaveDateGroup.match(/\(([^)]+)\)/);
+
+                return match ? match[1] : '';
+            })
+            .filter(function (leaveDateGroup) {
+                return leaveDateGroup !== '';
+            });
+
+        var ranges = [];
+
+        dateGroups.forEach(function (dateGroup) {
+            var dates = dateGroup
+                .split(',')
+                .map(function (dateValue) {
+                    var parts = dateValue.trim().split('/');
+
+                    if (parts.length !== 3) {
+                        return null;
+                    }
+
+                    return new Date(parseInt(parts[2], 10), parseInt(parts[0], 10) - 1, parseInt(parts[1], 10));
+                })
+                .filter(function (date) {
+                    return date && !isNaN(date.getTime());
+                })
+                .sort(function (firstDate, secondDate) {
+                    return firstDate - secondDate;
+                });
+
+            if (dates.length === 0) {
+                return;
+            }
+
+            var rangeStart = dates[0];
+            var previousDate = dates[0];
+
+            for (var index = 1; index < dates.length; index++) {
+                var currentDate = dates[index];
+                var nextExpectedDate = new Date(previousDate);
+                nextExpectedDate.setDate(nextExpectedDate.getDate() + 1);
+
+                if (currentDate.getTime() === nextExpectedDate.getTime()) {
+                    previousDate = currentDate;
+                    continue;
+                }
+
+                ranges.push(formatInclusiveDateRange(rangeStart, previousDate));
+                rangeStart = currentDate;
+                previousDate = currentDate;
+            }
+
+            ranges.push(formatInclusiveDateRange(rangeStart, previousDate));
+        });
+
+        return ranges.join('; ');
     }
 
     $(function () {
@@ -149,6 +231,13 @@
             columns: [
                 { "data": "DateApplied", title: 'Date Applied'},
                 { "data": "LeaveDetail", title: 'Leave Detail' },
+                {
+                    "data": "InclusiveDates",
+                    title: 'Inclusive Dates',
+                    render: function (data, type, row, meta) {
+                        return data || formatInclusiveDatesFromLeaveDates(row.LeaveDates);
+                    }
+                },
                 { "data": "TotalNumberofDays", title: 'Total Number of Days', className:'text-center' },
                 {
                     "data": "Status", title: 'Action',
