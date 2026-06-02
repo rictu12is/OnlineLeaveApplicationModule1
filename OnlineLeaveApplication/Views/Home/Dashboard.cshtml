@@ -1,5 +1,6 @@
 @{
     ViewBag.Title = "Dashboard";
+    ViewBag.FullWidthContent = true;
     Layout = "~/Views/Shared/_Layout.cshtml";
 
     var inProcessApplications = ViewBag.InProcessApplications as IEnumerable<dynamic> ?? new List<dynamic>();
@@ -19,7 +20,7 @@
         switch (status)
         {
             case 2:
-                return "badge-info";
+                return "badge-primary";
             case 3:
             case 4:
                 return "badge-warning";
@@ -184,7 +185,7 @@
         color: #444651;
         font-size: 12px;
         font-weight: 700;
-        letter-spacing: 0.08em;
+        letter-spacing: 0;
         margin: 0 0 24px;
         text-transform: uppercase;
     }
@@ -311,7 +312,7 @@
         display: block;
         font-size: 12px;
         font-weight: 700;
-        letter-spacing: 0.08em;
+        letter-spacing: 0;
         margin-bottom: 6px;
         text-transform: uppercase;
     }
@@ -334,7 +335,7 @@
         padding: 5px 10px;
     }
 
-    .tracking-status-info {
+    .tracking-status-primary {
         background: #d0e1fb;
         color: #00236f;
     }
@@ -411,6 +412,202 @@
         margin-right: 8px;
     }
 
+    .dashboard-shell {
+        align-items: flex-start;
+    }
+
+    .leave-info-panel {
+        background: #0b2f82;
+        border: 0;
+        border-radius: 6px;
+        box-shadow: 0 8px 18px rgba(15, 23, 42, 0.18);
+        color: #fff;
+        overflow: hidden;
+    }
+
+    .leave-info-panel .card-header {
+        align-items: center;
+        background: #08276f;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+        display: flex;
+        font-size: 14px;
+        font-weight: 700;
+        padding: 12px 14px;
+    }
+
+    .leave-info-panel .card-header i {
+        margin-right: 8px;
+    }
+
+    .leave-info-feature {
+        background: rgba(255, 255, 255, 0.08);
+        border-radius: 4px;
+        margin: 14px;
+        padding: 12px;
+    }
+
+    .leave-info-eyebrow {
+        color: #c8d7ff;
+        display: block;
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 0;
+        text-transform: uppercase;
+    }
+
+    .leave-info-title {
+        font-size: 14px;
+        font-weight: 700;
+        margin: 3px 0;
+    }
+
+    .leave-info-subtitle {
+        color: #e7edff;
+        font-size: 11px;
+        margin: 0;
+    }
+
+    .leave-guideline-actions {
+        display: grid;
+        padding: 0 14px 14px;
+    }
+
+    .leave-guideline-link {
+        align-items: center;
+        background: #fff;
+        border-radius: 4px;
+        color: #0b2f82;
+        display: flex;
+        font-size: 12px;
+        font-weight: 700;
+        justify-content: space-between;
+        min-height: 34px;
+        padding: 8px 10px;
+        text-decoration: none;
+    }
+
+    .leave-guideline-link:hover {
+        color: #08276f;
+        text-decoration: none;
+    }
+
+    .leave-guideline-link span {
+        align-items: center;
+        display: flex;
+        min-width: 0;
+    }
+
+    .leave-guideline-link span i {
+        flex: 0 0 auto;
+        margin-right: 8px;
+    }
+
+    .guidelines-modal .modal-content {
+        border: 0;
+        border-radius: 6px;
+        overflow: hidden;
+    }
+
+    .guidelines-modal-header {
+        align-items: center;
+        background: #0b2f82;
+        color: #fff;
+        display: flex;
+        justify-content: space-between;
+        padding: 16px 18px;
+    }
+
+    .guidelines-modal-title {
+        font-size: 18px;
+        font-weight: 700;
+        margin: 0;
+    }
+
+    .guidelines-modal-subtitle {
+        color: #dbe6ff;
+        font-size: 12px;
+        margin: 3px 0 0;
+    }
+
+    .guidelines-modal-close {
+        background: transparent;
+        border: 0;
+        color: #fff;
+        font-size: 18px;
+        line-height: 1;
+        padding: 4px;
+    }
+
+    .leave-guidelines-accordion .card {
+        border: 1px solid #d9e2f2;
+        border-radius: 4px;
+        box-shadow: none;
+        margin-bottom: 8px;
+    }
+
+    .leave-guidelines-accordion .card-header {
+        background: #f7f9fc;
+        border-bottom: 0;
+        padding: 0;
+    }
+
+    .leave-guidelines-accordion .btn-link {
+        align-items: center;
+        color: #1f2d3d;
+        display: flex;
+        font-weight: 700;
+        justify-content: space-between;
+        padding: 12px 14px;
+        text-align: left;
+        text-decoration: none;
+        width: 100%;
+    }
+
+    .leave-guidelines-accordion .btn-link:hover {
+        color: #0b2f82;
+        text-decoration: none;
+    }
+
+    .leave-guidelines-accordion .btn-link i {
+        color: #0b2f82;
+        margin-left: 12px;
+    }
+
+    .guideline-copy {
+        color: #4b5563;
+        font-size: 13px;
+        margin-bottom: 0;
+    }
+
+    .guideline-intro {
+        background: #f7f9fc;
+        border: 1px solid #d9e2f2;
+        border-radius: 4px;
+        color: #374151;
+        font-size: 13px;
+        margin-bottom: 12px;
+        padding: 12px 14px;
+    }
+
+    .guideline-list,
+    .guideline-sublist {
+        color: #4b5563;
+        font-size: 13px;
+        margin-bottom: 0;
+        padding-left: 18px;
+    }
+
+    .guideline-list li + li,
+    .guideline-sublist li + li {
+        margin-top: 5px;
+    }
+
+    .guideline-footnote {
+        color: #4b5563;
+        font-size: 12px;
+        margin: 12px 0 0;
+    }
+
     @@media (max-width: 767.98px) {
         .tracking-modal .modal-dialog {
             margin: 0.75rem;
@@ -428,42 +625,58 @@
     }
 </style>
 
-<h2>Dashboard</h2>
+<div class="row dashboard-shell">
+    <div class="col-12">
+        <h2>Dashboard</h2>
 
-<div class="row">
-    <div class="col-12 col-sm-6 col-md-3">
-        <div class="info-box">
-            <span class="info-box-icon bg-info elevation-1"><i class="fas fa-stamp"></i></span>
-            <div class="info-box-content">
-                <span class="info-box-text">For Certification</span>
-                <span class="info-box-number">@ViewBag.ForCertification</span>
+        <div class="row">
+            <div class="col-12 col-sm-6 col-xl-3">
+                <div class="small-box bg-primary">
+                    <div class="inner">
+                        <h3>@ViewBag.ForCertification</h3>
+                        <p>Received</p>
+                    </div>
+                    <div class="icon">
+                        <i class="fas fa-stamp"></i>
+                    </div>
+                    <a href="#dashboard-in-process" class="small-box-footer dashboard-filter-link" data-dashboard-status="2" data-dashboard-label="Received" onclick="window.renderDashboardFocusedResults(2, 'Received'); return false;">More info <i class="fas fa-link"></i></a>
+                </div>
             </div>
-        </div>
-    </div>
-    <div class="col-12 col-sm-6 col-md-3">
-        <div class="info-box mb-3">
-            <span class="info-box-icon bg-warning elevation-1"><i class="fas fa-file-signature"></i></span>
-            <div class="info-box-content">
-                <span class="info-box-text">For Review</span>
-                <span class="info-box-number">@ViewBag.ForReview</span>
+            <div class="col-12 col-sm-6 col-xl-3">
+                <div class="small-box bg-warning">
+                    <div class="inner">
+                        <h3>@ViewBag.ForReview</h3>
+                        <p>For Review</p>
+                    </div>
+                    <div class="icon">
+                        <i class="fas fa-file-signature"></i>
+                    </div>
+                    <a href="#dashboard-in-process" class="small-box-footer dashboard-filter-link" data-dashboard-status="3" data-dashboard-label="For Review" onclick="window.renderDashboardFocusedResults(3, 'For Review'); return false;">More info <i class="fas fa-link"></i></a>
+                </div>
             </div>
-        </div>
-    </div>
-    <div class="col-12 col-sm-6 col-md-3">
-        <div class="info-box mb-3">
-            <span class="info-box-icon bg-success elevation-1"><i class="fas fa-thumbs-up"></i></span>
-            <div class="info-box-content">
-                <span class="info-box-text">Approved</span>
-                <span class="info-box-number">@ViewBag.Approved</span>
+            <div class="col-12 col-sm-6 col-xl-3">
+                <div class="small-box bg-success">
+                    <div class="inner">
+                        <h3>@ViewBag.Approved</h3>
+                        <p>Approved</p>
+                    </div>
+                    <div class="icon">
+                        <i class="fas fa-thumbs-up"></i>
+                    </div>
+                    <a href="#dashboard-focused-results" class="small-box-footer dashboard-filter-link" data-dashboard-status="5" data-dashboard-label="Approved" onclick="window.renderDashboardFocusedResults(5, 'Approved'); return false;">More info <i class="fas fa-link"></i></a>
+                </div>
             </div>
-        </div>
-    </div>
-    <div class="col-12 col-sm-6 col-md-3">
-        <div class="info-box mb-3">
-            <span class="info-box-icon bg-danger elevation-1"><i class="fas fa-thumbs-down"></i></span>
-            <div class="info-box-content">
-                <span class="info-box-text">Disapproved</span>
-                <span class="info-box-number">@ViewBag.Disapproved</span>
+            <div class="col-12 col-sm-6 col-xl-3">
+                <div class="small-box bg-danger">
+                    <div class="inner">
+                        <h3>@ViewBag.Disapproved</h3>
+                        <p>Disapproved</p>
+                    </div>
+                    <div class="icon">
+                        <i class="fas fa-thumbs-down"></i>
+                    </div>
+                    <a href="#dashboard-focused-results" class="small-box-footer dashboard-filter-link" data-dashboard-status="0" data-dashboard-label="Disapproved" onclick="window.renderDashboardFocusedResults(0, 'Disapproved'); return false;">More info <i class="fas fa-link"></i></a>
+                </div>
             </div>
         </div>
     </div>
@@ -531,13 +744,263 @@
     </div>
 </div>
 
+<div class="modal fade guidelines-modal" id="modal-leave-guidelines" tabindex="-1" role="dialog" aria-labelledby="modal-leave-guidelines-title" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="guidelines-modal-header">
+                <div>
+                    <h4 class="guidelines-modal-title" id="modal-leave-guidelines-title">Leave Guidelines</h4>
+                    <p class="guidelines-modal-subtitle">Browse the leave types available in the application.</p>
+                </div>
+                <button type="button" class="guidelines-modal-close" data-dismiss="modal" aria-label="Close">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="guideline-intro">
+                    Application for any type of leave shall be made on this form and must be accomplished at least in duplicate with documentary requirements, as follows.
+                </div>
+                <div class="accordion leave-guidelines-accordion" id="leave-guidelines-accordion">
+                    <div class="card">
+                        <div class="card-header" id="leave-guideline-vacation-heading">
+                            <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#leave-guideline-vacation" aria-expanded="true" aria-controls="leave-guideline-vacation">
+                                Vacation Leave
+                                <i class="fas fa-chevron-down"></i>
+                            </button>
+                        </div>
+                        <div id="leave-guideline-vacation" class="collapse show" aria-labelledby="leave-guideline-vacation-heading" data-parent="#leave-guidelines-accordion">
+                            <div class="card-body">
+                                <p class="guideline-copy">It shall be filed five (5) days in advance, whenever possible, of the effective date of such leave. Vacation leave within the Philippines or abroad shall be indicated in the form for purposes of securing travel authority and completing clearance from money and work accountabilities.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-header" id="leave-guideline-forced-heading">
+                            <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#leave-guideline-forced" aria-expanded="false" aria-controls="leave-guideline-forced">
+                                Mandatory/Forced Leave
+                                <i class="fas fa-chevron-down"></i>
+                            </button>
+                        </div>
+                        <div id="leave-guideline-forced" class="collapse" aria-labelledby="leave-guideline-forced-heading" data-parent="#leave-guidelines-accordion">
+                            <div class="card-body">
+                                <p class="guideline-copy">Annual five-day vacation leave shall be forfeited if not taken during the year. If the scheduled leave has been cancelled in the exigency of service by the head of agency, it shall no longer be deducted from the accumulated vacation leave. Availment of one (1) day or more of vacation leave shall be considered for complying with the mandatory/forced leave subject to the conditions under Section 25, Rule XVI of the Omnibus Rules Implementing E.O. No. 292.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-header" id="leave-guideline-sick-heading">
+                            <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#leave-guideline-sick" aria-expanded="false" aria-controls="leave-guideline-sick">
+                                Sick Leave
+                                <i class="fas fa-chevron-down"></i>
+                            </button>
+                        </div>
+                        <div id="leave-guideline-sick" class="collapse" aria-labelledby="leave-guideline-sick-heading" data-parent="#leave-guidelines-accordion">
+                            <div class="card-body">
+                                <ul class="guideline-list">
+                                    <li>It shall be filed immediately upon employee's return from such leave.</li>
+                                    <li>If filed in advance or exceeding five (5) days, the application shall be accompanied by a medical certificate. If medical consultation was not availed of, an affidavit should be executed by the applicant.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-header" id="leave-guideline-maternity-heading">
+                            <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#leave-guideline-maternity" aria-expanded="false" aria-controls="leave-guideline-maternity">
+                                Maternity Leave - 105 days
+                                <i class="fas fa-chevron-down"></i>
+                            </button>
+                        </div>
+                        <div id="leave-guideline-maternity" class="collapse" aria-labelledby="leave-guideline-maternity-heading" data-parent="#leave-guidelines-accordion">
+                            <div class="card-body">
+                                <ul class="guideline-list">
+                                    <li>Proof of pregnancy, e.g. ultrasound, doctor's certificate on the expected date of delivery.</li>
+                                    <li>Accomplished Notice of Allocation of Maternity Leave Credits (CS Form No. 6a), if needed.</li>
+                                    <li>Solo female employees shall enjoy maternity leave with full pay.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-header" id="leave-guideline-paternity-heading">
+                            <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#leave-guideline-paternity" aria-expanded="false" aria-controls="leave-guideline-paternity">
+                                Paternity Leave - 7 days
+                                <i class="fas fa-chevron-down"></i>
+                            </button>
+                        </div>
+                        <div id="leave-guideline-paternity" class="collapse" aria-labelledby="leave-guideline-paternity-heading" data-parent="#leave-guidelines-accordion">
+                            <div class="card-body">
+                                <p class="guideline-copy">Proof of child's delivery, e.g. birth certificate, medical certificate, and marriage contract.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-header" id="leave-guideline-special-privilege-heading">
+                            <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#leave-guideline-special-privilege" aria-expanded="false" aria-controls="leave-guideline-special-privilege">
+                                Special Privilege Leave - 3 days
+                                <i class="fas fa-chevron-down"></i>
+                            </button>
+                        </div>
+                        <div id="leave-guideline-special-privilege" class="collapse" aria-labelledby="leave-guideline-special-privilege-heading" data-parent="#leave-guidelines-accordion">
+                            <div class="card-body">
+                                <p class="guideline-copy">It shall be filed/approved for at least one (1) week prior to availment, except on emergency cases. Special privilege leave within the Philippines or abroad shall be indicated in the form for purposes of securing travel authority and completing clearance from money and work accountabilities.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-header" id="leave-guideline-solo-parent-heading">
+                            <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#leave-guideline-solo-parent" aria-expanded="false" aria-controls="leave-guideline-solo-parent">
+                                Solo Parent Leave - 7 days
+                                <i class="fas fa-chevron-down"></i>
+                            </button>
+                        </div>
+                        <div id="leave-guideline-solo-parent" class="collapse" aria-labelledby="leave-guideline-solo-parent-heading" data-parent="#leave-guidelines-accordion">
+                            <div class="card-body">
+                                <p class="guideline-copy">It shall be filed in advance or whenever possible five (5) days before going on such leave, with an updated Solo Parent Identification Card.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-header" id="leave-guideline-study-heading">
+                            <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#leave-guideline-study" aria-expanded="false" aria-controls="leave-guideline-study">
+                                Study Leave - up to 6 months
+                                <i class="fas fa-chevron-down"></i>
+                            </button>
+                        </div>
+                        <div id="leave-guideline-study" class="collapse" aria-labelledby="leave-guideline-study-heading" data-parent="#leave-guidelines-accordion">
+                            <div class="card-body">
+                                <ul class="guideline-list">
+                                    <li>It shall meet the agency's internal requirements, if any.</li>
+                                    <li>Contract between the agency head or authorized representative and the employee concerned.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-header" id="leave-guideline-vawc-heading">
+                            <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#leave-guideline-vawc" aria-expanded="false" aria-controls="leave-guideline-vawc">
+                                10-Day VAWC Leave
+                                <i class="fas fa-chevron-down"></i>
+                            </button>
+                        </div>
+                        <div id="leave-guideline-vawc" class="collapse" aria-labelledby="leave-guideline-vawc-heading" data-parent="#leave-guidelines-accordion">
+                            <div class="card-body">
+                                <ul class="guideline-list">
+                                    <li>It shall be filed in advance or immediately upon the woman employee's return from such leave.</li>
+                                    <li>It shall be accompanied by any of the following supporting documents:
+                                        <ol class="guideline-sublist" type="a">
+                                            <li>Barangay Protection Order (BPO) obtained from the barangay.</li>
+                                            <li>Temporary/Permanent Protection Order (TPO/PPO) obtained from the court.</li>
+                                            <li>If the protection order is not yet issued by the barangay or the court, a certification issued by the Punong Barangay/Kagawad or Prosecutor or the Clerk of Court that the application for the BPO, TPO or PPO has been filed with the said office shall be sufficient to support the application for the ten-day leave.</li>
+                                            <li>In the absence of the BPO/TPO/PPO or certification, a police report specifying the details of the occurrence of violence on the victim and a medical certificate may be considered, at the discretion of the immediate supervisor of the woman employee concerned.</li>
+                                        </ol>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-header" id="leave-guideline-rehabilitation-heading">
+                            <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#leave-guideline-rehabilitation" aria-expanded="false" aria-controls="leave-guideline-rehabilitation">
+                                Rehabilitation Leave - up to 6 months
+                                <i class="fas fa-chevron-down"></i>
+                            </button>
+                        </div>
+                        <div id="leave-guideline-rehabilitation" class="collapse" aria-labelledby="leave-guideline-rehabilitation-heading" data-parent="#leave-guidelines-accordion">
+                            <div class="card-body">
+                                <ul class="guideline-list">
+                                    <li>Application shall be made within one (1) week from the time of the accident, except when a longer period is warranted.</li>
+                                    <li>Letter request supported by relevant reports such as the police report, if any.</li>
+                                    <li>Medical certificate on the nature of the injuries, the course of treatment involved, and the need to undergo rest, recuperation, and rehabilitation, as the case may be.</li>
+                                    <li>Written concurrence of a government physician should be obtained relative to the recommendation for rehabilitation if the attending physician is a private practitioner, particularly on the duration of the period of rehabilitation.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-header" id="leave-guideline-women-heading">
+                            <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#leave-guideline-women" aria-expanded="false" aria-controls="leave-guideline-women">
+                                Special Leave Benefits for Women - up to 2 months
+                                <i class="fas fa-chevron-down"></i>
+                            </button>
+                        </div>
+                        <div id="leave-guideline-women" class="collapse" aria-labelledby="leave-guideline-women-heading" data-parent="#leave-guidelines-accordion">
+                            <div class="card-body">
+                                <ul class="guideline-list">
+                                    <li>The application may be filed in advance, that is, at least five (5) days prior to the scheduled date of the gynecological surgery that will be undergone by the employee. In case of emergency, the application for special leave shall be filed immediately upon employee's return but during confinement the agency shall be notified of said surgery.</li>
+                                    <li>The application shall be accompanied by a medical certificate filled out by the proper medical authorities, e.g. the attending surgeon accompanied by a clinical summary reflecting the gynecological disorder which shall be addressed or was addressed by the said surgery; the histopathological report; the operative technique used for the surgery; the duration of the surgery including the peri-operative period (period of confinement around surgery); as well as the employee's estimated period of recuperation.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-header" id="leave-guideline-calamity-heading">
+                            <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#leave-guideline-calamity" aria-expanded="false" aria-controls="leave-guideline-calamity">
+                                Special Emergency (Calamity) Leave - up to 5 days
+                                <i class="fas fa-chevron-down"></i>
+                            </button>
+                        </div>
+                        <div id="leave-guideline-calamity" class="collapse" aria-labelledby="leave-guideline-calamity-heading" data-parent="#leave-guidelines-accordion">
+                            <div class="card-body">
+                                <ul class="guideline-list">
+                                    <li>The special emergency leave can be applied for a maximum of five (5) straight working days or staggered basis within thirty (30) days from the actual occurrence of the natural calamity/disaster. Said privilege shall be enjoyed once a year, not in every instance of calamity or disaster.</li>
+                                    <li>The head of office shall take full responsibility for the grant of special emergency leave and verification of the employee's eligibility to be granted thereof. Said verification shall include: validation of place of residence based on latest available records of the affected employee; verification that the place of residence is covered in the declaration of calamity area by the proper government agency; and such other proofs as may be necessary.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-header" id="leave-guideline-monetization-heading">
+                            <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#leave-guideline-monetization" aria-expanded="false" aria-controls="leave-guideline-monetization">
+                                Monetization of Leave Credits
+                                <i class="fas fa-chevron-down"></i>
+                            </button>
+                        </div>
+                        <div id="leave-guideline-monetization" class="collapse" aria-labelledby="leave-guideline-monetization-heading" data-parent="#leave-guidelines-accordion">
+                            <div class="card-body">
+                                <p class="guideline-copy">Application for monetization of fifty percent (50%) or more of the accumulated leave credits shall be accompanied by letter request to the head of the agency stating the valid and justifiable reasons.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-header" id="leave-guideline-terminal-heading">
+                            <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#leave-guideline-terminal" aria-expanded="false" aria-controls="leave-guideline-terminal">
+                                Terminal Leave
+                                <i class="fas fa-chevron-down"></i>
+                            </button>
+                        </div>
+                        <div id="leave-guideline-terminal" class="collapse" aria-labelledby="leave-guideline-terminal-heading" data-parent="#leave-guidelines-accordion">
+                            <div class="card-body">
+                                <p class="guideline-copy">Proof of employee's resignation or retirement or separation from the service.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-header" id="leave-guideline-adoption-heading">
+                            <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#leave-guideline-adoption" aria-expanded="false" aria-controls="leave-guideline-adoption">
+                                Adoption Leave
+                                <i class="fas fa-chevron-down"></i>
+                            </button>
+                        </div>
+                        <div id="leave-guideline-adoption" class="collapse" aria-labelledby="leave-guideline-adoption-heading" data-parent="#leave-guidelines-accordion">
+                            <div class="card-body">
+                                <p class="guideline-copy">Application for adoption leave shall be filed with an authenticated copy of the Pre-Adoptive Placement Authority issued by the Department of Social Welfare and Development (DSWD).</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <p class="guideline-footnote">* For leave of absence for thirty (30) calendar days or more and terminal leave, application shall be accompanied by a clearance from money, property and work-related accountabilities pursuant to CSC Memorandum Circular No. 2, s. 1985.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
     window.dashboardApplications = @Html.Raw(Json.Encode(allDashboardApplications));
 
     window.getDashboardStatusBadgeClass = function (status) {
         switch (status) {
             case 2:
-                return 'tracking-status-info';
+                return 'tracking-status-primary';
             case 3:
             case 4:
                 return 'tracking-status-warning';
@@ -704,10 +1167,165 @@
         $('#modal-dashboard-application').modal('show');
     };
 
+    window.getDashboardTableBadgeClass = function (status) {
+            switch (status) {
+                case 2:
+                    return 'badge-primary';
+            case 3:
+            case 4:
+                return 'badge-warning';
+            case 5:
+                return 'badge-success';
+            case 0:
+                return 'badge-danger';
+            default:
+                return 'badge-secondary';
+        }
+    };
+
+    window.renderDashboardFocusedResults = function (status, label) {
+        var applications = (window.dashboardApplications || []).filter(function (application) {
+            return Number(application.Status) === status;
+        });
+        var showSchedule = status === 5;
+        var body = document.getElementById('dashboard-filter-body');
+        var table = document.createElement('table');
+        var thead = document.createElement('thead');
+        var headerRow = document.createElement('tr');
+
+        table.className = 'table table-bordered table-hover mb-0';
+
+        ['Date Applied', 'Leave Detail', 'Inclusive Dates', 'Total Days', 'Status'].forEach(function (heading, index) {
+            var th = document.createElement('th');
+            th.textContent = heading;
+
+            if (index >= 3) {
+                th.className = 'text-center';
+            }
+
+            headerRow.appendChild(th);
+        });
+
+        if (showSchedule) {
+            var scheduleHeader = document.createElement('th');
+            scheduleHeader.className = 'text-center';
+            scheduleHeader.textContent = 'Schedule';
+            headerRow.appendChild(scheduleHeader);
+        }
+
+        var actionHeader = document.createElement('th');
+        actionHeader.className = 'text-center';
+        actionHeader.textContent = 'Action';
+        headerRow.appendChild(actionHeader);
+
+        document.getElementById('dashboard-filter-label').textContent = label;
+        document.getElementById('dashboard-filter-count').textContent = applications.length;
+        body.innerHTML = '';
+
+        if (applications.length === 0) {
+            var emptyState = document.createElement('div');
+            emptyState.className = 'text-muted p-3';
+            emptyState.textContent = 'No ' + label + ' applications for this year.';
+            body.appendChild(emptyState);
+        } else {
+            var tbody = document.createElement('tbody');
+
+            applications.forEach(function (application) {
+                var row = document.createElement('tr');
+                var dateCell = document.createElement('td');
+                var leaveCell = document.createElement('td');
+                var datesCell = document.createElement('td');
+                var daysCell = document.createElement('td');
+                var statusCell = document.createElement('td');
+                var statusBadge = document.createElement('span');
+
+                dateCell.textContent = application.DateApplied || '';
+                leaveCell.textContent = application.LeaveDetail || '';
+                daysCell.className = 'text-center';
+                daysCell.textContent = application.TotalNumberOfDays || 0;
+                statusCell.className = 'text-center';
+                statusBadge.className = 'badge ' + window.getDashboardTableBadgeClass(Number(application.Status));
+                statusBadge.textContent = application.StatusText || '';
+
+                if (application.InclusiveDates) {
+                    datesCell.textContent = application.InclusiveDates;
+                } else {
+                    var noDatesBadge = document.createElement('span');
+                    noDatesBadge.className = 'badge badge-secondary';
+                    noDatesBadge.textContent = 'No dates';
+                    datesCell.appendChild(noDatesBadge);
+                }
+
+                statusCell.appendChild(statusBadge);
+                row.appendChild(dateCell);
+                row.appendChild(leaveCell);
+                row.appendChild(datesCell);
+                row.appendChild(daysCell);
+                row.appendChild(statusCell);
+
+                if (showSchedule) {
+                    var scheduleCell = document.createElement('td');
+                    var scheduleBadge = document.createElement('span');
+
+                    scheduleCell.className = 'text-center';
+                    scheduleBadge.className = 'badge ' + (application.ScheduleBadgeClass || 'badge-secondary');
+                    scheduleBadge.textContent = application.ScheduleText || 'No dates';
+                    scheduleCell.appendChild(scheduleBadge);
+                    row.appendChild(scheduleCell);
+                }
+
+                var actionCell = document.createElement('td');
+                var actionButton = document.createElement('button');
+                var actionIcon = document.createElement('i');
+
+                actionCell.className = 'text-center';
+                actionButton.type = 'button';
+                actionButton.title = 'View Application';
+                actionButton.className = 'btn btn-sm btn-primary dashboard-view-application';
+                actionButton.setAttribute('data-toggle', 'modal');
+                actionButton.setAttribute('data-target', '#modal-dashboard-application');
+                actionButton.setAttribute('data-application-id', application.LeaveApplicationID);
+                actionButton.setAttribute('onclick', 'window.openDashboardApplication(' + application.LeaveApplicationID + ')');
+                actionIcon.className = 'fas fa-eye';
+                actionButton.appendChild(actionIcon);
+                actionCell.appendChild(actionButton);
+                row.appendChild(actionCell);
+                tbody.appendChild(row);
+            });
+
+            var tableWrap = document.createElement('div');
+            tableWrap.className = 'table-responsive';
+            thead.appendChild(headerRow);
+            table.appendChild(thead);
+            table.appendChild(tbody);
+            tableWrap.appendChild(table);
+            body.appendChild(tableWrap);
+        }
+
+        document.getElementById('dashboard-default-sections').classList.add('d-none');
+        document.getElementById('dashboard-focused-results').classList.remove('d-none');
+        document.getElementById('dashboard-focused-results').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    };
+
+    window.clearDashboardFocusedResults = function () {
+        document.getElementById('dashboard-focused-results').classList.add('d-none');
+        document.getElementById('dashboard-default-sections').classList.remove('d-none');
+        document.getElementById('dashboard-filter-body').innerHTML = '';
+    };
+
     $(function () {
         $(document).on('click', '.dashboard-view-application', function (event) {
             event.preventDefault();
             window.openDashboardApplication($(this).data('application-id'));
+        });
+
+        $(document).on('click', '.dashboard-filter-link', function (event) {
+            event.preventDefault();
+            window.renderDashboardFocusedResults(Number($(this).data('dashboard-status')), $(this).data('dashboard-label'));
+        });
+
+        $('#dashboard-filter-clear').on('click', function () {
+            window.clearDashboardFocusedResults();
         });
 
         $('#tracking-print-summary').on('click', function () {
@@ -720,50 +1338,53 @@
     });
 </script>
 
-<div class="card card-primary card-outline">
+<div class="card card-primary card-outline d-none" id="dashboard-focused-results">
     <div class="card-header">
-        <h3 class="card-title">In Process</h3>
+        <h3 class="card-title">Showing: <span id="dashboard-filter-label"></span></h3>
         <div class="card-tools">
-            <span class="badge badge-primary">@inProcessApplications.Count()</span>
+            <span class="badge badge-primary mr-2" id="dashboard-filter-count">0</span>
+            <button type="button" class="btn btn-tool" id="dashboard-filter-clear" title="Clear filter" onclick="window.clearDashboardFocusedResults();">
+                <i class="fas fa-times"></i>
+            </button>
         </div>
     </div>
-    <div class="card-body p-0">
-        @RenderApplicationTable(inProcessApplications, "No in-process applications for this year.", false)
-    </div>
+    <div class="card-body p-0" id="dashboard-filter-body"></div>
 </div>
 
-<div class="card card-info card-outline">
-    <div class="card-header">
-        <h3 class="card-title">Approved - Upcoming</h3>
-        <div class="card-tools">
-            <span class="badge badge-info">@approvedUpcomingApplications.Count()</span>
+<div id="dashboard-default-sections">
+    <div class="row">
+        <div class="col-lg-9 col-xl-10">
+            <div class="card card-primary card-outline" id="dashboard-in-process">
+                <div class="card-header">
+                    <h3 class="card-title">In Process</h3>
+                    <div class="card-tools">
+                        <span class="badge badge-primary">@inProcessApplications.Count()</span>
+                    </div>
+                </div>
+                <div class="card-body p-0">
+                    @RenderApplicationTable(inProcessApplications, "No in-process applications for this year.", false)
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-xl-2 leave-info-column">
+            <div class="card leave-info-panel">
+                <div class="card-header">
+                    <i class="fas fa-plane-departure"></i>
+                    Leave Application Info
+                </div>
+                <div class="leave-info-feature">
+                    <span class="leave-info-eyebrow">Policy References</span>
+                    <div class="leave-info-title">Leave Guidelines</div>
+                    <p class="leave-info-subtitle">Open the general policy reference when configured.</p>
+                </div>
+                <div class="leave-guideline-actions">
+                    <a href="#" class="leave-guideline-link" title="Open leave guidelines" data-toggle="modal" data-target="#modal-leave-guidelines">
+                        <span><i class="fas fa-list-ul"></i>Leave Guidelines</span>
+                        <i class="fas fa-link"></i>
+                    </a>
+                </div>
+            </div>
         </div>
     </div>
-    <div class="card-body p-0">
-        @RenderApplicationTable(approvedUpcomingApplications, "No upcoming approved applications for this year.", true)
-    </div>
-</div>
 
-<div class="card card-success card-outline">
-    <div class="card-header">
-        <h3 class="card-title">Approved - Finished</h3>
-        <div class="card-tools">
-            <span class="badge badge-success">@approvedFinishedApplications.Count()</span>
-        </div>
-    </div>
-    <div class="card-body p-0">
-        @RenderApplicationTable(approvedFinishedApplications, "No finished approved applications for this year.", true)
-    </div>
-</div>
-
-<div class="card card-danger card-outline">
-    <div class="card-header">
-        <h3 class="card-title">Disapproved</h3>
-        <div class="card-tools">
-            <span class="badge badge-danger">@disapprovedApplications.Count()</span>
-        </div>
-    </div>
-    <div class="card-body p-0">
-        @RenderApplicationTable(disapprovedApplications, "No disapproved applications for this year.", false)
-    </div>
 </div>

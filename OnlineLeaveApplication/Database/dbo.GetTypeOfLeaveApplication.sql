@@ -19,9 +19,9 @@ BEGIN
         INNER JOIN [dbo].[TypeOfLeave] tol
             ON lad.[TypeOfLeaveID] = tol.[TypeOfLeaveID]
         WHERE lad.[LeaveApplicationID] = @LeaveApplicationID
-          AND tol.[TypeOfLeave] = @TypeOfLeave
+          AND LTRIM(RTRIM(tol.[TypeOfLeave])) = LTRIM(RTRIM(@TypeOfLeave))
     )
-    THEN '/' ELSE '' END;
+    THEN 'X' ELSE '' END;
 
     RETURN ISNULL(@Result, '');
 END;

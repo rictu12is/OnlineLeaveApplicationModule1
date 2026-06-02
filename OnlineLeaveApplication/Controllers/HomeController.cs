@@ -51,7 +51,7 @@ namespace OnlineLeaveApplication.Controllers
         private static string GetStatusText(short? status)
         {
             return status == 1 ? "Draft" :
-                status == 2 ? "For Certification" :
+                status == 2 ? "Received" :
                 status == 3 ? "For Review" :
                 status == 4 ? "For Approval" :
                 status == 5 ? "Approved" :
@@ -297,7 +297,7 @@ namespace OnlineLeaveApplication.Controllers
                                 .FirstOrDefault();
                     Session["Status"] = result.ForInitialReview ? 2 : result.ForReview ? 3 : result.ForApproval ? 4 : 0;
 
-                    return RedirectToAction("Index", "Home");
+                    return RedirectToAction("Dashboard", "Home");
                 }
             }
              

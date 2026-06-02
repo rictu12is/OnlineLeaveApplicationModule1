@@ -67,7 +67,7 @@ namespace OnlineLeaveApplication.Controllers
         private static string GetStatusText(short? status)
         {
             return status == 1 ? "Draft" :
-                status == 2 ? "For Certification" :
+                status == 2 ? "Received" :
                 status == 3 ? "For Review" :
                 status == 4 ? "For Approval" :
                 status == 5 ? "Approved" :
@@ -87,6 +87,25 @@ namespace OnlineLeaveApplication.Controllers
                 currentStatus == 4 ? (short)5 :
                 currentStatus == 0 ? (short)2 :
                 currentStatus.HasValue ? (short)(currentStatus.Value + 1) : (short)1;
+        }
+
+        private static bool CanSubmitLeaveApplication(LeaveApplication leaveApplication, short? currentStatus, short employeeID, bool isReturned)
+        {
+            if (leaveApplication == null)
+            {
+                return false;
+            }
+
+            if (isReturned && currentStatus != 2 && currentStatus != 3 && currentStatus != 4)
+            {
+                return false;
+            }
+
+            return currentStatus == 1 ? leaveApplication.EmployeeID == employeeID :
+                currentStatus == 0 ? leaveApplication.EmployeeID == employeeID :
+                currentStatus == 2 ? leaveApplication.ReceivedBy == employeeID :
+                currentStatus == 3 ? leaveApplication.ReviewedBy == employeeID :
+                currentStatus == 4 ? leaveApplication.ApprovedBy == employeeID : false;
         }
 
         private void AssignApplicationSignatories(LeaveApplication leaveApplication)
@@ -134,6 +153,7 @@ namespace OnlineLeaveApplication.Controllers
             return Json("Successfully saved the leave application record!", JsonRequestBehavior.AllowGet);
         }
 
+        [HttpPost]
         public ActionResult SubmitLeaveApplication(int leaveApplicationID, string remarks, bool isReturned = false)
         {
             if (Session["EmployeeID"] == null)
@@ -160,10 +180,16 @@ namespace OnlineLeaveApplication.Controllers
                 AssignApplicationSignatories(leaveApplication);
             }
 
+            if (!CanSubmitLeaveApplication(leaveApplication, la.Status, employeeID, isReturned))
+            {
+                Response.StatusCode = 403;
+                return Json("You are not allowed to submit this leave application.", JsonRequestBehavior.AllowGet);
+            }
+
             la.ReceivedBy = employeeID;
 
             //Status = status == "1" ? "Draft" :
-            //         status == "2" ? "For Certification" :
+            //         status == "2" ? "Received" :
             //         status == "3" ? "For Review" :
             //         status == "4" ? "For Approval" :
             //         status == "5" ? "Approved" :
@@ -179,6 +205,50 @@ namespace OnlineLeaveApplication.Controllers
             db.SaveChanges();
 
             return Json("Successfully submitted leave application record!", JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpPost]
+        public ActionResult CancelDraftLeaveApplication(int leaveApplicationID)
+        {
+            if (Session["EmployeeID"] == null)
+            {
+                return Json("Session expired. Please log in again.", JsonRequestBehavior.AllowGet);
+            }
+
+            var employeeID = Convert.ToInt16(Session["EmployeeID"]);
+            var leaveApplication = db.LeaveApplications
+                .Include(application => application.LeaveApplicationDetails.Select(detail => detail.LeaveApplicationDetailInclusiveDates))
+                .Include(application => application.LeaveApplicationSubmissions)
+                .Include(application => application.LeaveApplicationAttachments1)
+                .FirstOrDefault(application => application.LeaveApplicationID == leaveApplicationID && application.EmployeeID == employeeID);
+
+            if (leaveApplication == null)
+            {
+                return Json("Draft leave application record was not found.", JsonRequestBehavior.AllowGet);
+            }
+
+            var latestStatus = leaveApplication.LeaveApplicationSubmissions
+                .OrderByDescending(submission => submission.DateSubmitted)
+                .ThenByDescending(submission => submission.LeaveApplicationSubmissionID)
+                .FirstOrDefault()?.Status;
+
+            if (latestStatus != 1)
+            {
+                return Json("Only draft leave applications can be canceled.", JsonRequestBehavior.AllowGet);
+            }
+
+            foreach (var leaveApplicationDetail in leaveApplication.LeaveApplicationDetails.ToList())
+            {
+                db.LeaveApplicationDetailInclusiveDates.RemoveRange(leaveApplicationDetail.LeaveApplicationDetailInclusiveDates.ToList());
+            }
+
+            db.LeaveApplicationDetails.RemoveRange(leaveApplication.LeaveApplicationDetails.ToList());
+            db.LeaveApplicationSubmissions.RemoveRange(leaveApplication.LeaveApplicationSubmissions.ToList());
+            db.LeaveApplicationAttachments.RemoveRange(leaveApplication.LeaveApplicationAttachments1.ToList());
+            db.LeaveApplications.Remove(leaveApplication);
+            db.SaveChanges();
+
+            return Json("Successfully canceled draft leave application record!", JsonRequestBehavior.AllowGet);
         }
 
         public ActionResult GetLeaveApplications(bool forApproval =false)

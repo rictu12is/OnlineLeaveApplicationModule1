@@ -9,98 +9,6 @@
         cursor: not-allowed !important;
     }
 </style>
-<h5>Application Status</h5>
-<!-- Info boxes -->
-<div class="row">
-    <div class="col-12 col-sm-6 col-md-3">
-        <div class="info-box">
-            <span class="info-box-icon bg-info elevation-1"><i class="fas fa-stamp"></i></span>
-
-            <div class="info-box-content">
-                <span class="info-box-text">For Certification</span>
-                <span class="info-box-number">
-                    @ViewBag.ForCertification
-                </span>
-            </div>
-            <!-- /.info-box-content -->
-        </div>
-        <!-- /.info-box -->
-    </div>
-    <!-- /.col -->
-    <!-- fix for small devices only -->
-    <div class="clearfix hidden-md-up"></div>
-    <div class="col-12 col-sm-6 col-md-3">
-        <div class="info-box mb-3">
-            <span class="info-box-icon bg-warning elevation-1"><i class="fas fa-file-signature"></i></span>
-
-            <div class="info-box-content">
-                <span class="info-box-text">For Review</span>
-                <span class="info-box-number">@ViewBag.ForReview</span>
-            </div>
-            <!-- /.info-box-content -->
-        </div>
-        <!-- /.info-box -->
-    </div>
-    <!-- /.col -->
-    <div class="col-12 col-sm-6 col-md-3">
-        <div class="info-box mb-3">
-            <span class="info-box-icon bg-success elevation-1"><i class="fas fa-thumbs-up"></i></span>
-
-            <div class="info-box-content">
-                <span class="info-box-text">Approved</span>
-                <span class="info-box-number">@ViewBag.Approved</span>
-            </div>
-            <!-- /.info-box-content -->
-        </div>
-        <!-- /.info-box -->
-    </div>
-    <!-- /.col -->
-    <div class="col-12 col-sm-6 col-md-3">
-        <div class="info-box mb-3">
-            <span class="info-box-icon bg-danger elevation-1"><i class="fas fa-thumbs-down"></i></span>
-
-            <div class="info-box-content">
-                <span class="info-box-text">Disapproved</span>
-                <span class="info-box-number">@ViewBag.Disapproved</span>
-            </div>
-            <!-- /.info-box-content -->
-        </div>
-        <!-- /.info-box -->
-    </div>
-    <!-- /.col -->
-</div>
-<!-- /.row -->
-<hr />
-<h5>Leave Balances</h5>
-<div class="row">
-    <div class="col-md-3 col-sm-6 col-12">
-        <div class="info-box">
-            <span class="info-box-icon bg-info"><i class="fas fa-suitcase-rolling"></i></span>
-
-            <div class="info-box-content">
-                <span class="info-box-text">Vacation Leave</span>
-                <span class="info-box-number">6</span>
-            </div>
-            <!-- /.info-box-content -->
-        </div>
-        <!-- /.info-box -->
-    </div>
-    <!-- /.col -->
-    <div class="col-md-3 col-sm-6 col-12">
-        <div class="info-box">
-            <span class="info-box-icon bg-maroon"><i class="fas fa-stethoscope"></i></span>
-
-            <div class="info-box-content">
-                <span class="info-box-text">Sick Leave</span>
-                <span class="info-box-number">4</span>
-            </div>
-            <!-- /.info-box-content -->
-        </div>
-        <!-- /.info-box -->
-    </div>
-    <!-- /.col -->
-</div>
-<hr />
 <table id="table_leave" class="table table-bordered table-hover">
     <thead>
         <tr>
@@ -117,11 +25,12 @@
 <script>
     var table_leavedetail;
     var editingLeaveRow = null;
+    var table_leave;
 
     function getStatusBadge(status) {
         var badgeClass = {
             'Draft': 'badge-secondary',
-            'For Certification': 'badge-info',
+            'Received': 'badge-primary',
             'For Review': 'badge-primary',
             'Reviewed': 'badge-warning',
             'For Approval': 'badge-warning',
@@ -213,7 +122,7 @@
     }
 
     $(function () {
-        var table_leave = $('#table_leave').DataTable({
+        table_leave = $('#table_leave').DataTable({
             processing: true,      // Show loading indicator
             serverSide: true,      // Enable server-side processing
             autoWidth: false,      // Disable automatic column width calculation
@@ -249,7 +158,11 @@
                             "<br><a href='#'><i class='fas fa-print'></i> Print Leave Form</a>" +
                             "<br>Attachments: ");
 
-                        if (row.Status == 'Draft' || row.Status == 'Returned') {
+                        if (row.Status == 'Draft') {
+                            return getStatusBadge(row.Status) +
+                                '<br><a href="#" data-toggle="modal" data-target="#modal-submit" onclick="GetLeaveApplicationID(' + row.LeaveApplicationID + ', \'' + row.Status + '\')" title="Submit Draft"><i class="fas fa-chevron-circle-right"></i></a>' +
+                                ' <a href="#" class="text-danger" onclick="CancelDraftLeaveApplication(' + row.LeaveApplicationID + '); return false;" title="Cancel Draft"><i class="fas fa-times-circle"></i></a>';
+                        } else if (row.Status == 'Returned') {
                             return '<a href="#" data-toggle="modal" data-target="#modal-submit" onclick="GetLeaveApplicationID(' + row.LeaveApplicationID + ', \'' + row.Status + '\')"> ' + getStatusBadge(row.Status) + '<br><i class="fas fa-chevron-circle-right"></i></a>';
                         } else {
                             return getStatusBadge(row.Status) + '<br><a href="#" onclick="GenerateLeaveApplicationForm(' + row.LeaveApplicationID + ');"><i class="fas fa-print"></i></a>';
@@ -500,6 +413,17 @@
         $("#LeaveApplicationID").val(id);
         $($(".btnSubmitLeaveApplication")[2]).html('Submit');
         //$("#returnBtn").prop("disabled", status == 'Returned' ? true : false);
+    }
+
+    function CancelDraftLeaveApplication(id) {
+        if (!confirm('Cancel this draft leave application?')) {
+            return;
+        }
+
+        $.post("/LeaveApplication/CancelDraftLeaveApplication", { leaveApplicationID: id }, function (response) {
+            alert(response);
+            table_leave.ajax.reload();
+        }, "json");
     }
 
     function GenerateLeaveApplicationForm(id) {

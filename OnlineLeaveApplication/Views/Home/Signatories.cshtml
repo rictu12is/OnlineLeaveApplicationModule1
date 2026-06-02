@@ -9,7 +9,7 @@
         <tr>
             <th>OfficeID</th>
             <th>Office</th>
-            <th>For Certification</th>
+            <th>Received</th>
             <th>For Review</th>
             <th>For Approval</th>
             <th></th>
@@ -37,7 +37,7 @@
                             </label>
                             <input type="text" name="MainOfficeName" class="form-control" />
                         </div>
-                        @Html.Label("For Certification")
+                        @Html.Label("Received")
                         @Html.DropDownList("ForCertification", ViewBag.Signatories as List<SelectListItem>, "-- Choose Employee --", new { @class = "form-control select2 select2-danger", @style = "width: 100%", @name = "ForInitialReview", data_dropdown_css_class = "select2-danger" })
                         @Html.Label("For Review")
                         @Html.DropDownList("ForReview", ViewBag.Signatories as List<SelectListItem>, "-- Choose Employee --", new { @class = "form-control select2 select2-danger", @style = "width: 100%", @name = "ForReview", data_dropdown_css_class = "select2-danger" })
@@ -76,7 +76,7 @@
 
                 { "data": "MainOfficeID", title: 'MainOfficeID', visible: false },
                 { "data": "MainOfficeName", title: 'Office' },
-                { "data": "ForCertification", title: 'For Certification' },
+                { "data": "ForCertification", title: 'Received' },
                 { "data": "ForReview", title: 'For Review' },
                 { "data": "ForApproval", title: 'For Approval' },
                 {

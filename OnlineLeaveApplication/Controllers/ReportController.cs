@@ -15,7 +15,7 @@ namespace OnlineLeaveApplication.Controllers
 {
     public class ReportController : Controller
     {
-        const string SelectedCheckboxMark = "/";
+        const string SelectedCheckboxMark = "X";
         static readonly HashSet<string> CheckboxMarkParameterNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
         {
             "pVacationLeaveMark",
@@ -136,7 +136,7 @@ namespace OnlineLeaveApplication.Controllers
 
         void TrySetLeaveTypeParameter(ReportDocument rd, string parameterName, System.Collections.Generic.List<string> leaveTypeNames, string leaveTypeName)
         {
-            var selected = leaveTypeNames.Any(name => name == leaveTypeName);
+            var selected = leaveTypeNames.Any(name => string.Equals((name ?? string.Empty).Trim(), leaveTypeName, StringComparison.OrdinalIgnoreCase));
             TrySetParameter(rd, parameterName, selected ? SelectedCheckboxMark : string.Empty);
         }
 
@@ -213,8 +213,9 @@ namespace OnlineLeaveApplication.Controllers
             using (var command = connection.CreateCommand())
             {
                 command.CommandText = @"
-IF OBJECT_ID(N'[dbo].[GetTypeOfLeaveApplication]', N'FN') IS NULL
-BEGIN
+IF OBJECT_ID(N'[dbo].[GetTypeOfLeaveApplication]', N'FN') IS NOT NULL
+    DROP FUNCTION [dbo].[GetTypeOfLeaveApplication];
+
     EXEC(N'
 CREATE FUNCTION [dbo].[GetTypeOfLeaveApplication]
 (
@@ -233,13 +234,13 @@ BEGIN
         INNER JOIN [dbo].[TypeOfLeave] tol
             ON lad.[TypeOfLeaveID] = tol.[TypeOfLeaveID]
         WHERE lad.[LeaveApplicationID] = @LeaveApplicationID
-          AND tol.[TypeOfLeave] = @TypeOfLeave
+          AND LTRIM(RTRIM(tol.[TypeOfLeave])) = LTRIM(RTRIM(@TypeOfLeave))
     )
-    THEN ''/'' ELSE '''' END;
+    THEN ''X'' ELSE '''' END;
 
     RETURN ISNULL(@Result, '''');
 END');
-END";
+";
 
                 connection.Open();
                 command.ExecuteNonQuery();
